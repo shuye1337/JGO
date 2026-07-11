@@ -1,0 +1,1715 @@
+{
+  "servers": [
+    {
+      "url": "/metadata/v1"
+    }
+  ],
+  "info": {
+    "description": "<p style='margin-left:0;width:80%;'>API for discovering detailed information about Azul's builds. Documentation on how to use the Metadata API to install Azul Zulu Builds of OpenJDK can be found <a href='https://docs.azul.com/core/install/metadata-api'>here</a>. <br>Zulu builds of OpenJDK are available free, <a href=https://www.azul.com/products/core/openjdk-terms-of-use/>terms of use</a>. <br>Zing builds are only available for customers or with a  <a href='https://www.azul.com/prime-trial/' target='_blank'>trial account</a>. <br>For API access to Zulu supported builds and/or Zing builds please contact <a href='https://support.azul.com'>Azul Support</a>.</p>",
+    "termsOfService": "https://www.azul.com/legal/terms-of-use/",
+    "license": {
+      "name": "MIT License",
+      "url": "https://fr.wikipedia.org/wiki/Licence_MIT"
+    },
+    "title": "Azul Metadata API",
+    "version": "1.19.7"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "openapi": "3.0.3",
+  "tags": [
+    {
+      "name": "ZingPackages",
+      "description": "Zing package metadata"
+    },
+    {
+      "name": "ZuluPackages",
+      "description": "Zulu package metadata"
+    }
+  ],
+  "paths": {
+    "/zing/packages/": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ZingPkgList"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Pagination": {
+                "$ref": "#/components/headers/PAGINATION"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List of zing packages filtered by specified query parameters",
+        "tags": [
+          "ZingPackages"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "java_version",
+            "description": "Filters the result by whole or partial Java version. Partial version will return all versions containing partial version, ie <code>8</code> will return all packages with a Java major version of <code>8</code>. Build number can be appended and must be separated using <code>b</code> or <code>+</code>. If build number is specified Java update number will default to <code>0</code> if not specified. Accepted formats include: <code>17</code>, <code>17+35</code>, <code>17.0.1</code> <code>17.0.1+12</code>, <code>13.0.2.0.101</code>, <code>13.0.5.1+100</code>, <code>8u312b07</code>, <code>1.8.0_262</code>. If invalid value is used java_version filter will be ignored and all java versions will be included.",
+            "schema": {
+              "type": "string",
+              "example": "17"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "os",
+            "description": "Filters the result by the operating system the package is targeting.If invalid value is used os filter will be ignored and all operating systems will be included.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "linux"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arch",
+            "description": "<p>Filters the result by the CPU architecture the package is built for. If invalid value is used arch filter will be ignored and all CPU architectures will be included.</p><p>Supported values:</p><ul><li><code>x86</code> - x86 64bit</li><li><code>x64</code> - x86 64bit</li><li><code>amd64</code> - x86 64bit</li><li><code>arm</code> - arm 64bit</li><li><code>aarch64</code> - arm 64bit</li></ul>",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "x86",
+                "x64",
+                "amd64",
+                "arm",
+                "aarch64"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "archive_type",
+            "description": "Filters the result by package's archive type, ie file name extension.If filter is not specified all archive types will be included, however if archive_type filter is specified with an invalid value an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "deb",
+                "rpm",
+                "dmg",
+                "tar.gz",
+                "zip",
+                "sh"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "java_package_type",
+            "description": "Filters the result by Java package type, <code>jdk</code> or <code>jre</code>. If filter is not specified all package types will be included, however if java_package_type filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jdk",
+                "jre"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "support_term",
+            "description": "Filters the result by JDK term of support. Supported values are: long term support <code>lts</code>, medium term support <code>mts</code>, or short term support <code>sts</code>. If filter is not specified all packages will be included, however if support_term filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sts",
+                "mts",
+                "lts"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "release_type",
+            "description": "Filters the result by release type. Supported values are: Critical Patch Update <code>CPU</code>, Patch Set Update <code>PSU</code>, or <code>CPU_PLUS_PSU</code>. If filter is not specified all packages will be included, however if release_type filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CPU",
+                "PSU",
+                "CPU_PLUS_PSU"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "latest",
+            "description": "<p>Whether the result includes a single result for each package with unique properties, ie whether the package is the most recent release available that matches the set of query parameters. Please note when filter <code>latest=true</code> is used the packages returned will NOT be limited to packages from the latest release. </p><p>Properties considered for uniqueness include: </p><p><code>java major version</code>, <code>os</code>, <code>architecture</code>, <code>archive type</code>, <code>java package type</code>, <code>support term</code>, <code>release type</code>, <code>build type</code>, <code>cpu gen</code></p><p>If filter is not specified all packages will be included, however if latest filter is specified with an invalid value, an error will be returned.</p>",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "crs_supported",
+            "description": "Whether the result includes CRS supported packages.If filter is not specified all packages will be included, however if crs_supported filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "distro_version",
+            "description": "Filters the result by whole or partial distribution version using dot separated format. Partial version will return all versions containing partial version, ie <code>20</code> will return all packages with major version <code>20</code>. Build number can be appended using <code>-</code> to separate from version. Accepted formats include: <code>19.02.110.0</code>, <code>19</code>, <code>19.06</code>, <code>22.02.400.0-2</code>.  If invalid value is used filter will be ignored and all versions will be included.",
+            "schema": {
+              "type": "string",
+              "example": "21"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "build_types",
+            "description": "<p>Filters results by build type(s). Results will return packages that match any of the specified build types</p><p>Supported values:</p><ul><li><code>stream</code></li><li><code>stable</code></li><li><code>dev</code></li><li><code>fvb</code></li></ul><p>Packages with build type(s) other than <code>stream</code> are restricted and require an authentication token.</p><p>If build_types filter is not specified, unauthenticated requests default to the unrestricted build_types <code>stream</code>, while authenticated requests default to all build_types, <code>stream,stable,dev,fvb</code>. Invalid build_types filter value(s) will be ignored. If no authentication is used results will either be limited to the unrestricted code>stream</code> packages or an unauthorized error will be returned.</p>",
+            "schema": {
+              "default": null,
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "enum": [
+                "stream",
+                "stable",
+                "dev",
+                "fvb"
+              ],
+              "example": "stable"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "include_fields",
+            "description": "<p>Adds specified package fields to the results. Invalid values will be ignored.</p><p>Please Note: Package details returned by the list endpoint are truncated due to the large number of available packages. Adding fields can impact the time it takes for the API to process the request.</p>",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/zing/packages/{package_uuid}": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZingPkgDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Details for zing package with specified package_uuid",
+        "tags": [
+          "ZingPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zing/packages/{package_uuid}/binary": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Redirect to zing package's download url",
+        "tags": [
+          "ZingPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zing/packages/{package_uuid}/signature-binary": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Zing package's signature",
+        "tags": [
+          "ZingPackages"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "signature_index",
+            "description": "Index of the signature from the list of signatures returned from package details request.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": "0"
+            },
+            "required": false
+          },
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zing/packages/{hash_type}/{hash_value}": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Zing package UUID lookup by hash",
+        "tags": [
+          "ZingPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hash_type",
+            "description": "Name of hash type to be used for package uuid lookup.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "md5"
+              ],
+              "example": "sha256"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "hash_value",
+            "description": "Value of the hash type to be used for package uuid lookup.",
+            "schema": {
+              "type": "string",
+              "example": "74e9ffa86b8cf7757501794b847133502f33d916ce07a07171317bcf97c646f1"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "hash_type",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "hash_value",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zulu/packages/": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ZuluPkgList"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Pagination": {
+                "$ref": "#/components/headers/PAGINATION"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List of zulu packages filtered by specified query parameters",
+        "tags": [
+          "ZuluPackages"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "java_version",
+            "description": "Filters the result by whole or partial Java version. Partial version will return all versions containing partial version, ie <code>8</code> will return all packages with a Java major version of <code>8</code>. Build number can be appended and must be separated using <code>b</code> or <code>+</code>. If build number is specified Java update number will default to <code>0</code> if not specified. Accepted formats include: <code>17</code>, <code>17+35</code>, <code>17.0.1</code> <code>17.0.1+12</code>, <code>13.0.2.0.101</code>, <code>13.0.5.1+100</code>, <code>8u312b07</code>, <code>1.8.0_262</code>. If invalid value is used java_version filter will be ignored and all java versions will be included.",
+            "schema": {
+              "type": "string",
+              "example": "17"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "os",
+            "description": "Filters the result by the operating system the package is targeting. Includes optional libc filtering for linux. If invalid value is used os filter will be ignored and all operating systems will be included.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "macos",
+                "windows",
+                "linux",
+                "linux-musl",
+                "linux-glibc",
+                "qnx",
+                "solaris",
+                "aix"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arch",
+            "description": "<p>Filters the result by the CPU architecture the package is built for. Includes optional hw bitness and abi filters. If invalid value is used arch filter will be ignored and all CPU architectures will be included. </p><p>Please Note: Some architecture options are only available for Azul customers.</p><p>Supported values:</p><ul><li><code>x86</code> - x86 64bit and x86 32bit</li><li><code>x64</code> - x86 64bit</li><li><code>amd64</code> - x86 64bit</li><li><code>i686</code> - x86 32bit</li><li><code>arm</code> - arm 64bit and arm 32bit</li><li><code>aarch64</code> - arm 64bit</li><li><code>aarch32</code> - arm 32bit</li><li><code>aarch32sf</code> - arm 32bit soft float</li><li><code>aarch32hf</code> - arm 32bit hard float</li><li><code>ppc</code> - ppc 64bit and ppc 32bit</li><li><code>ppc64</code> - ppc 64bit</li><li><code>ppc64hf</code> - ppc 64bit</li><li><code>ppc32</code> - ppc 32bit</li><li><code>ppc32spe</code> - ppc 32bit spe</li><li><code>ppc32hf</code> - ppc 32bit hard float</li><li><code>sparc</code> - sparc 64bit and sparc 32bit</li><li><code>sparc32</code> - sparc 32bit</li><li><code>sparcv9</code> - sparcv9 64bit and sparcv9 32bit</li><li><code>sparcv9-64</code> - sparcv9 64bit</li></ul>",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "x86",
+                "x64",
+                "amd64",
+                "i686",
+                "arm",
+                "aarch64",
+                "aarch32",
+                "aarch32sf",
+                "aarch32hf",
+                "ppc",
+                "ppc64",
+                "ppc32",
+                "ppc32hf",
+                "ppc32spe",
+                "sparc",
+                "sparc64",
+                "sparc32",
+                "sparcv9",
+                "sparcv9-64",
+                "sparcv9-32"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "archive_type",
+            "description": "Filters the result by package's archive type, ie file name extension.If filter is not specified all archive types will be included, however if archive_type filter is specified with an invalid value an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "deb",
+                "rpm",
+                "dmg",
+                "tar.gz",
+                "zip",
+                "cab",
+                "msi"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "java_package_type",
+            "description": "Filters the result by Java package type, <code>jdk</code> or <code>jre</code>. If filter is not specified all package types will be included, however if java_package_type filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jdk",
+                "jre"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "javafx_bundled",
+            "description": "Whether the result includes packages with JavaFX support. If filter is not specified all packages will be included, however if javafx_bundled filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "crac_supported",
+            "description": "Whether the result includes packages with CRaC support.If filter is not specified all packages will be included, however if crac_supported filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "crs_supported",
+            "description": "Whether the result includes CRS supported packages.If filter is not specified all packages will be included, however if crs_supported filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "support_term",
+            "description": "Filters the result by JDK term of support. Supported values are: long term support <code>lts</code>, medium term support <code>mts</code>, or short term support <code>sts</code>. If filter is not specified all packages will be included, however if support_term filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sts",
+                "mts",
+                "lts"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "release_type",
+            "description": "Filters the result by release type. Supported values are: Critical Patch Update <code>CPU</code>, Patch Set Update <code>PSU</code>, or Limited Update <code>LU</code>. If filter is not specified all packages will be included, however if release_type filter is specified with an invalid value, an error will be returned.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CPU",
+                "PSU",
+                "LU"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "latest",
+            "description": "<p>Whether the result includes a single result for each package with unique properties, ie whether the package is the most recent release available that matches the set of query parameters. Please note when filter <code>latest=true</code> is used the packages returned will NOT be limited to packages from the latest quarterly update. </p><p>Properties considered for uniqueness include: </p><p><code>java major version</code>, <code>os</code>, <code>libc</code>, <code>architecture</code>, <code>hw bitness</code>, <code>abi</code>, <code>archive type</code>, <code>java package type</code>, <code>javafx bundled</code>, <code>support term</code>, <code>release type</code>, <code>availability type</code>, <code>release status</code>, <code>cpu gen</code>, <code>java package features</code>, <code>includes auto update</code></p><p>If filter is not specified all packages will be included, however if latest filter is specified with an invalid value, an error will be returned.</p>",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "distro_version",
+            "description": "Filters the result by whole or partial distribution version using dot separated format. Partial version will return all versions containing partial version, ie <code>8</code> will return all packages with major version <code>8</code>. Accepted formats include: <code>8.36.0.152</code>, <code>15</code>, <code>13.35.100.0</code>. If invalid value is used filter will be ignored and all versions will be included.",
+            "schema": {
+              "type": "string",
+              "example": "17"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "java_package_features",
+            "description": "<p>Filters the result by various Java API feature flags. Results will return packages that match any of the specified features.</p><p>Supported values:</p><ul><li><code>cp1</code> - Compact Profile compact1</li><li><code>cp2</code> - Compact Profile compact2</li><li><code>cp3</code> - Compact Profile compact3</li><li><code>headfull</code> - Headfull JVM</li><li><code>headless</code> - Headless JVM</li></ul><p>If filter is not specified all packages will be included, however if java_package_features filter is specified with an invalid value(s), the request will be successful but contain no packages.</p>",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "release_status",
+            "description": "<p>Filters the result by release status, general availability <code>ga</code> or early access  <code>ea</code>. If no value is specified only general availability <code>ga</code> packages will be returned.</p><p>Please Note: Currently only packages with availability type of <code>ca</code> have <code>ea</code> releases.</p><p>If release_status filter is specified with an invalid value an error will be returned.</p>",
+            "schema": {
+              "default": "ga",
+              "type": "string",
+              "enum": [
+                "ea",
+                "ga",
+                "both"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "availability_types",
+            "description": "<p>Filters results by availability type. Results will return packages that match any of the specified availability types</p><p>Supported values:</p><ul><li><code>ca</code></li><li><code>sa</code></li><li><code>nv</code></li></ul><p>Packages with availability type ><code>sa</code> or <code>nv</code> are restricted and require an authentication token.</p><p>If availability_types filter is not specified, unauthenticated requests default to the unrestricted availability_type <code>ca</code>, while authenticated requests default to all availability_types, <code>ca,sa,nv</code>. Invalid availability_types filter value(s) will be ignored. If no authentication is used results will either be limited to the unrestricted code>ca</code> packages or an unauthorized error will be returned.</p>",
+            "schema": {
+              "default": null,
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "enum": [
+                "SA",
+                "CA",
+                "NV"
+              ],
+              "example": "CA"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "certifications",
+            "description": "<p>Filters results by certification. To filter for packages with no certification use value <code>none</code>, otherwise results will return packages that match any of the specified certificate types.<p>Supported values:</p><ul><li><code>tck</code></li><li><code>aqavit</code></li><li><code>none</code></li></ul><p>If filter is not specified all packages will be included, however if certifications filter is specified with an invalid value, an error will be returned.</p>",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "enum": [
+                "tck",
+                "aqavit"
+              ],
+              "example": "tck",
+              "nullable": true
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "include_fields",
+            "description": "<p>Adds specified package fields to the results. Invalid values will be ignored.</p><p>Please Note: Package details returned by the list endpoint are truncated due to the large number of available packages. Adding fields can impact the time it takes for the API to process the request.</p>",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/zulu/packages/{package_uuid}": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZuluPkgDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Details for zulu package with specified package_uuid",
+        "tags": [
+          "ZuluPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zulu/packages/{package_uuid}/binary": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Redirect to zulu package's download url",
+        "tags": [
+          "ZuluPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zulu/packages/{package_uuid}/signature-binary": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Zulu package's signature",
+        "tags": [
+          "ZuluPackages"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "signature_index",
+            "description": "Index of the signature from the list of signatures returned from package details request.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": "0"
+            },
+            "required": false
+          },
+          {
+            "in": "path",
+            "name": "package_uuid",
+            "description": "Package uuid, used to identify a specific package.",
+            "schema": {
+              "type": "string",
+              "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "package_uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/zulu/packages/{hash_type}/{hash_value}": {
+      "get": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Zulu package UUID lookup by hash",
+        "tags": [
+          "ZuluPackages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hash_type",
+            "description": "Name of hash type to be used for package uuid lookup.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "md5"
+              ],
+              "example": "sha256"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "hash_value",
+            "description": "Value of the hash type to be used for package uuid lookup.",
+            "schema": {
+              "type": "string",
+              "example": "74e9ffa86b8cf7757501794b847133502f33d916ce07a07171317bcf97c646f1"
+            },
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "hash_type",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "in": "path",
+          "name": "hash_value",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "ZingPkgList": {
+        "type": "object",
+        "properties": {
+          "package_uuid": {
+            "type": "string",
+            "maxLength": 36,
+            "example": "40f6a3df-4d7d-443e-9a2d-a8193337ce92"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "zing25.08.301.0-1-jdk21.0.9.0.101-linux_arm64.deb",
+            "nullable": true
+          },
+          "java_version": {
+            "type": "array",
+            "example": [
+              8,
+              0,
+              202
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "openjdk_build_number": {
+            "type": "integer",
+            "example": 152,
+            "nullable": true
+          },
+          "latest": {
+            "type": "boolean",
+            "default": null,
+            "example": false,
+            "nullable": true
+          },
+          "download_url": {
+            "readOnly": true,
+            "type": "string",
+            "example": "https://r3bin.azul.com/zing-zvm/ZVM25.08.301.0/zing25.08.301.0-1-jdk21.0.9.0.101-linux_arm64.deb?verify=1771895468-tP1PIbRthbwc9214cUEcKNEIPA8ZscY9IgWAaOWNl5c%3D"
+          },
+          "product": {
+            "type": "string",
+            "default": "zing",
+            "enum": [
+              "zing"
+            ],
+            "example": "zing",
+            "nullable": true
+          },
+          "distro_version": {
+            "type": "array",
+            "example": [
+              25,
+              8,
+              301,
+              0
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "distro_build_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "build_type": {
+            "type": "string",
+            "enum": [
+              "stream",
+              "stable",
+              "dev",
+              "fvb"
+            ],
+            "example": "stable",
+            "nullable": true
+          }
+        },
+        "required": [
+          "package_uuid"
+        ],
+        "additionalProperties": false
+      },
+      "ZingPkgDetail": {
+        "type": "object",
+        "properties": {
+          "package_uuid": {
+            "type": "string",
+            "maxLength": 36,
+            "example": "40f6a3df-4d7d-443e-9a2d-a8193337ce92"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "zing25.08.301.0-1-jdk21.0.9.0.101-linux_arm64.deb",
+            "nullable": true
+          },
+          "md5_hash": {
+            "type": "string",
+            "maxLength": 32,
+            "example": "0837a53b1360e7dac7f55b3a1390c265",
+            "nullable": true
+          },
+          "sha256_hash": {
+            "type": "string",
+            "example": "fc0c47f5640afc4342d078ea568d867ef6272f3496360784de09224506638d90"
+          },
+          "build_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-02-06T06:40:24"
+          },
+          "release_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-02-06T06:40:24",
+            "nullable": true
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-02-06T06:40:24",
+            "nullable": true
+          },
+          "download_url": {
+            "readOnly": true,
+            "type": "string",
+            "example": "https://r3bin.azul.com/zing-zvm/ZVM25.08.301.0/zing25.08.301.0-1-jdk21.0.9.0.101-linux_arm64.deb?verify=1771895468-tP1PIbRthbwc9214cUEcKNEIPA8ZscY9IgWAaOWNl5c%3D"
+          },
+          "product": {
+            "type": "string",
+            "default": "zing",
+            "enum": [
+              "zing"
+            ],
+            "example": "zing",
+            "nullable": true
+          },
+          "build_type": {
+            "type": "string",
+            "enum": [
+              "stream",
+              "stable",
+              "dev",
+              "fvb"
+            ],
+            "example": "stable"
+          },
+          "java_major_version": {
+            "type": "integer",
+            "example": 8
+          },
+          "java_version": {
+            "type": "array",
+            "example": [
+              8,
+              0,
+              202
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "openjdk_build_number": {
+            "type": "integer",
+            "example": 152,
+            "nullable": true
+          },
+          "java_package_type": {
+            "type": "string",
+            "enum": [
+              "jdk",
+              "jre"
+            ],
+            "example": "jdk"
+          },
+          "release_type": {
+            "type": "string",
+            "enum": [
+              "CPU",
+              "PSU",
+              "CPU_PLUS_PSU"
+            ],
+            "example": "PSU"
+          },
+          "os": {
+            "type": "string",
+            "enum": [
+              "linux"
+            ],
+            "example": "linux"
+          },
+          "cpu_gen": {
+            "type": "string",
+            "default": null,
+            "example": null,
+            "nullable": true
+          },
+          "arch": {
+            "type": "string",
+            "enum": [
+              "arm",
+              "x86"
+            ],
+            "example": "arm"
+          },
+          "archive_type": {
+            "type": "string",
+            "enum": [
+              "deb",
+              "rpm",
+              "dmg",
+              "tar.gz",
+              "zip",
+              "sh"
+            ],
+            "example": "tar.gz"
+          },
+          "support_term": {
+            "type": "string",
+            "enum": [
+              "sts",
+              "mts",
+              "lts"
+            ],
+            "example": "lts"
+          },
+          "latest": {
+            "type": "boolean",
+            "default": null,
+            "example": false,
+            "nullable": true
+          },
+          "crs_supported": {
+            "type": "boolean",
+            "default": false,
+            "example": false
+          },
+          "distro_version": {
+            "type": "array",
+            "example": [
+              25,
+              8,
+              301,
+              0
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "distro_build_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "signatures": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZingSigDetail"
+            }
+          }
+        },
+        "required": [
+          "java_major_version",
+          "package_uuid"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors",
+            "additionalProperties": {}
+          }
+        },
+        "additionalProperties": false
+      },
+      "ZuluPkgDetail": {
+        "type": "object",
+        "properties": {
+          "package_uuid": {
+            "type": "string",
+            "maxLength": 36,
+            "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "zulu8.36.0.152-ca-jdk1.8.0.202-linux_aarch32sf.tar.gz",
+            "nullable": true
+          },
+          "md5_hash": {
+            "type": "string",
+            "maxLength": 32,
+            "example": "0837a53b1360e7dac7f55b3a1390c265",
+            "nullable": true
+          },
+          "sha256_hash": {
+            "type": "string",
+            "maxLength": 64,
+            "example": "fc0c47f5640afc4342d078ea568d867ef6272f3496360784de09224506638d90",
+            "nullable": true
+          },
+          "build_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-02-06T06:40:24"
+          },
+          "last_modified": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-02-06T06:40:24"
+          },
+          "download_url": {
+            "readOnly": true,
+            "type": "string",
+            "example": "https://cdn.azul.com/zulu/bin/zulu8.36.0.152-ca-jdk1.8.0.202-linux_aarch32sf.tar.gz"
+          },
+          "product": {
+            "type": "string",
+            "default": "zulu",
+            "enum": [
+              "zulu"
+            ],
+            "example": "zulu",
+            "nullable": true
+          },
+          "availability_type": {
+            "type": "string",
+            "enum": [
+              "SA",
+              "CA",
+              "NV"
+            ],
+            "example": "CA"
+          },
+          "java_version": {
+            "type": "array",
+            "example": [
+              8,
+              0,
+              202
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "openjdk_build_number": {
+            "type": "integer",
+            "example": 152,
+            "nullable": true
+          },
+          "java_package_type": {
+            "type": "string",
+            "enum": [
+              "jdk",
+              "jre"
+            ],
+            "example": "jdk"
+          },
+          "javafx_bundled": {
+            "type": "boolean",
+            "default": false,
+            "example": false
+          },
+          "crac_supported": {
+            "type": "boolean",
+            "default": false,
+            "example": false
+          },
+          "crs_supported": {
+            "type": "boolean",
+            "default": false,
+            "example": false
+          },
+          "java_package_features": {
+            "type": "array",
+            "default": [],
+            "example": [
+              "jdk"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "release_type": {
+            "type": "string",
+            "enum": [
+              "CPU",
+              "PSU",
+              "LU"
+            ],
+            "example": "PSU"
+          },
+          "os": {
+            "type": "string",
+            "enum": [
+              "linux",
+              "macos",
+              "qnx",
+              "windows",
+              "solaris",
+              "aix"
+            ],
+            "example": "linux"
+          },
+          "lib_c_type": {
+            "type": "string",
+            "default": null,
+            "enum": [
+              "glibc",
+              "uclibc",
+              "musl"
+            ],
+            "example": "glibc",
+            "nullable": true
+          },
+          "cpu_gen": {
+            "type": "array",
+            "default": null,
+            "example": [
+              "v6t2",
+              "v7"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "v5",
+                "v6k_v6kz",
+                "v6t2",
+                "v7",
+                "v8"
+              ]
+            },
+            "nullable": true
+          },
+          "arch": {
+            "type": "string",
+            "enum": [
+              "arm",
+              "x86",
+              "mips",
+              "ppc",
+              "sparcv9",
+              "sparc"
+            ],
+            "example": "arm"
+          },
+          "hw_bitness": {
+            "type": "string",
+            "enum": [
+              32,
+              64
+            ],
+            "example": 32
+          },
+          "abi": {
+            "type": "string",
+            "default": null,
+            "enum": [
+              "hard_float",
+              "soft_float",
+              "spe"
+            ],
+            "example": "soft_float",
+            "nullable": true
+          },
+          "archive_type": {
+            "type": "string",
+            "enum": [
+              "deb",
+              "rpm",
+              "dmg",
+              "tar.gz",
+              "zip",
+              "cab",
+              "msi"
+            ],
+            "example": "tar.gz"
+          },
+          "release_status": {
+            "type": "string",
+            "enum": [
+              "eval",
+              "ea",
+              "ga"
+            ],
+            "example": "ga"
+          },
+          "support_term": {
+            "type": "string",
+            "enum": [
+              "sts",
+              "mts",
+              "lts"
+            ],
+            "example": "lts"
+          },
+          "certifications": {
+            "type": "array",
+            "default": null,
+            "example": "tck",
+            "items": {
+              "type": "string",
+              "enum": [
+                "tck",
+                "aqavit"
+              ]
+            },
+            "nullable": true
+          },
+          "latest": {
+            "type": "boolean",
+            "default": null,
+            "example": false,
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "example": 173471000
+          },
+          "distro_version": {
+            "type": "array",
+            "example": [
+              8,
+              36,
+              0,
+              152
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "signatures": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZuluSigDetail"
+            }
+          }
+        },
+        "required": [
+          "package_uuid"
+        ],
+        "additionalProperties": false
+      },
+      "ZuluSigDetail": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "openpgp"
+            ],
+            "example": "openpgp"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://api.azul.com/metadata/v1/zulu/supported/packages/32747b9c-1578-407f-bf60-7f4d2dacd19a/signature-binary?signature-index=0"
+          },
+          "details": {
+            "type": "object"
+          },
+          "signature_index": {
+            "type": "integer",
+            "default": 0
+          },
+          "signature": {
+            "type": "string",
+            "example": "iQIcBAABCAAGBQJg7OXjAAoJELGZg2Ehm9nJhnEQAKTJG+/orpADDOY+PefbuPVp7dFw7/Ej0qcKsOATS6k/tSMAsMpX3pNGI4G/HGTWFAhpV2uTNsd4xk0OfAmNdCD/OgVQKmkmI6UT+Nolmds61KPTgV2Q9j8M/1ddiObvJV+/kz9RRtmx5WsJiwufhJiqE5htyGprc7a6TQwAnmqfMkqNJMrKtKAUxFHB7zD9ZDOgm3rXlu6tO91RLSO9Mj8q7f46hJHraX0aOOg5+u4cqHhrsa01N30QW06acGGx3mCNIDAmgDZnzx7s3TmkqSAXYViuWliKbh15zTBcK5Fak0QngAjLbWqi1Frcu+cd74uwFL9+p8aGjBZwMB+IO8HRglh1qGF3sxlC5ZDIEV7S5wWjgBuNTk9rei/pmPqALnBYyVloyj447FoYcf7vaW/NOtnMig4F5w2E5gyKDnsN9SZVxJOek3kvC/Jz5tSNxbOOrGtwCxybQ6VWb/e0xVqrfMjWJtN1Mh+o+Xjqel9/rDajOaKgp9OYJGy89E3iL08dDaxKOl30Ebu+PFYLBmQuWuNN2iHcORCdaDT9CqI8qXi+lIO+4c/wThQzcMjnm9NfmjBtnwCPLH8ZYRL2fnYPQZv3k+1TdDB/X0bfbj8m75rX0T7y0jRfj3FBYvcRprKGiAnma8FQXXYV6YkXQnvWXP09dHHeh6kHvpo5C6wk"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ZingSigDetail": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "openpgp"
+            ],
+            "example": "openpgp"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://api.azul.com/metadata/v1/zing/supported/packages/5f23ed48-cf95-42af-b4d2-b9d31a1315fa/signature-binary?signature-index=0"
+          },
+          "details": {
+            "type": "object"
+          },
+          "signature_index": {
+            "type": "integer",
+            "default": 0
+          },
+          "signature": {
+            "type": "string",
+            "example": "iQIcBAABCAAGBQJg7OXjAAoJELGZg2Ehm9nJhnEQAKTJG+/orpADDOY+PefbuPVp7dFw7/Ej0qcKsOATS6k/tSMAsMpX3pNGI4G/HGTWFAhpV2uTNsd4xk0OfAmNdCD/OgVQKmkmI6UT+Nolmds61KPTgV2Q9j8M/1ddiObvJV+/kz9RRtmx5WsJiwufhJiqE5htyGprc7a6TQwAnmqfMkqNJMrKtKAUxFHB7zD9ZDOgm3rXlu6tO91RLSO9Mj8q7f46hJHraX0aOOg5+u4cqHhrsa01N30QW06acGGx3mCNIDAmgDZnzx7s3TmkqSAXYViuWliKbh15zTBcK5Fak0QngAjLbWqi1Frcu+cd74uwFL9+p8aGjBZwMB+IO8HRglh1qGF3sxlC5ZDIEV7S5wWjgBuNTk9rei/pmPqALnBYyVloyj447FoYcf7vaW/NOtnMig4F5w2E5gyKDnsN9SZVxJOek3kvC/Jz5tSNxbOOrGtwCxybQ6VWb/e0xVqrfMjWJtN1Mh+o+Xjqel9/rDajOaKgp9OYJGy89E3iL08dDaxKOl30Ebu+PFYLBmQuWuNN2iHcORCdaDT9CqI8qXi+lIO+4c/wThQzcMjnm9NfmjBtnwCPLH8ZYRL2fnYPQZv3k+1TdDB/X0bfbj8m75rX0T7y0jRfj3FBYvcRprKGiAnma8FQXXYV6YkXQnvWXP09dHHeh6kHvpo5C6wk"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ZuluPkgList": {
+        "type": "object",
+        "properties": {
+          "package_uuid": {
+            "type": "string",
+            "maxLength": 36,
+            "example": "6dc442a7-dd4c-11ea-a8fe-fa163ed8e833"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "zulu8.36.0.152-ca-jdk1.8.0.202-linux_aarch32sf.tar.gz",
+            "nullable": true
+          },
+          "java_version": {
+            "type": "array",
+            "example": [
+              8,
+              0,
+              202
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "openjdk_build_number": {
+            "type": "integer",
+            "example": 152,
+            "nullable": true
+          },
+          "latest": {
+            "type": "boolean",
+            "default": null,
+            "example": false,
+            "nullable": true
+          },
+          "download_url": {
+            "readOnly": true,
+            "type": "string",
+            "example": "https://cdn.azul.com/zulu/bin/zulu8.36.0.152-ca-jdk1.8.0.202-linux_aarch32sf.tar.gz"
+          },
+          "product": {
+            "type": "string",
+            "default": "zulu",
+            "enum": [
+              "zulu"
+            ],
+            "example": "zulu",
+            "nullable": true
+          },
+          "distro_version": {
+            "type": "array",
+            "example": [
+              8,
+              36,
+              0,
+              152
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "availability_type": {
+            "type": "string",
+            "enum": [
+              "SA",
+              "CA",
+              "NV",
+              "LA"
+            ],
+            "example": "CA",
+            "nullable": true
+          }
+        },
+        "required": [
+          "package_uuid"
+        ],
+        "additionalProperties": false
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total number of items."
+          },
+          "total_pages": {
+            "type": "integer",
+            "description": "Total number of pages."
+          },
+          "first_page": {
+            "type": "integer",
+            "description": "First available page number."
+          },
+          "last_page": {
+            "type": "integer",
+            "description": "Last available page number."
+          },
+          "page": {
+            "type": "integer",
+            "description": "Current page number."
+          },
+          "previous_page": {
+            "type": "integer",
+            "description": "Previous page number."
+          },
+          "next_page": {
+            "type": "integer",
+            "description": "Next page number."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "UNPROCESSABLE_ENTITY": {
+        "description": "Unprocessable Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "headers": {
+      "PAGINATION": {
+        "description": "Pagination metadata",
+        "schema": {
+          "$ref": "#/components/schemas/PaginationMetadata"
+        }
+      }
+    }
+  }
+}

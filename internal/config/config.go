@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -90,7 +91,17 @@ func (c *Config) Save() error {
 	if err := os.WriteFile(tmp, data, 0644); err != nil {
 		return err
 	}
-	return os.Rename(tmp, p)
+	if err := os.Rename(tmp, p); err != nil {
+		if data, e := os.ReadFile(tmp); e == nil {
+			if e2 := os.WriteFile(p, data, 0644); e2 != nil {
+				return fmt.Errorf("failed to save config: %w", err)
+			}
+			os.Remove(tmp)
+			return nil
+		}
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+	return nil
 }
 
 func (c *Config) EnsureRoot() error {

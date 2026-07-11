@@ -71,7 +71,11 @@ func (m *Manager) Install(ctx context.Context, asset provider.JDKAsset, name str
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to clean up temp dir: %v\n", err)
+		}
+	}()
 
 	fmt.Fprintf(os.Stderr, "Downloading %s %s (%s)...\n", asset.Source, asset.Version, asset.FileType)
 	archivePath, err := downloader.Download(ctx, asset.URL, m.Config.Proxy, tmpDir)
@@ -87,12 +91,16 @@ func (m *Manager) Install(ctx context.Context, asset provider.JDKAsset, name str
 	fmt.Fprintf(os.Stderr, "Extracting...\n")
 	jdkHome, err := archive.Extract(archivePath, installDir)
 	if err != nil {
-		os.RemoveAll(installDir)
+		if e := os.RemoveAll(installDir); e != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to clean up install dir: %v\n", e)
+		}
 		return fmt.Errorf("extraction failed: %w", err)
 	}
 
 	if err := archive.ValidateJDK(jdkHome); err != nil {
-		os.RemoveAll(installDir)
+		if e := os.RemoveAll(installDir); e != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to clean up install dir: %v\n", e)
+		}
 		return fmt.Errorf("validation failed: %w", err)
 	}
 
@@ -138,12 +146,16 @@ func (m *Manager) AddLocal(ctx context.Context, archivePath, name string) error 
 	fmt.Fprintf(os.Stderr, "Extracting %s...\n", archivePath)
 	jdkHome, err := archive.Extract(archivePath, installDir)
 	if err != nil {
-		os.RemoveAll(installDir)
+		if e := os.RemoveAll(installDir); e != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to clean up install dir: %v\n", e)
+		}
 		return fmt.Errorf("extraction failed: %w", err)
 	}
 
 	if err := archive.ValidateJDK(jdkHome); err != nil {
-		os.RemoveAll(installDir)
+		if e := os.RemoveAll(installDir); e != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to clean up install dir: %v\n", e)
+		}
 		return fmt.Errorf("not a valid JDK: %w", err)
 	}
 

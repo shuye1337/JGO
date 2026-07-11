@@ -2,7 +2,6 @@ package provider
 
 import (
 	"sync"
-	"time"
 )
 
 type cacheEntry struct {
@@ -12,7 +11,6 @@ type cacheEntry struct {
 	arch       string
 	proxy      string
 	mirrorsKey string
-	time       time.Time
 }
 
 var (
@@ -30,7 +28,6 @@ func SetCache(assets []JDKAsset, errs []error, osName, arch, proxy, mirrorsKey s
 		arch:       arch,
 		proxy:      proxy,
 		mirrorsKey: mirrorsKey,
-		time:       time.Now(),
 	}
 }
 

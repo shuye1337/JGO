@@ -74,13 +74,15 @@ func MapArch() string {
 	}
 }
 
+var registry []Provider
+
+func Register(p Provider) {
+	registry = append(registry, p)
+}
+
 func All(mirrors MirrorSet) []Provider {
-	base := []Provider{
-		NewDragonwell(),
-		NewCorretto(),
-		NewAzul(),
-		NewAdoptium(),
-	}
+	base := make([]Provider, len(registry))
+	copy(base, registry)
 	if len(mirrors.Backends) == 0 {
 		return base
 	}
