@@ -19,6 +19,18 @@ Java 版本管理器 — 管理多个 JDK 安装的命令行工具。
 go build -o jgo .
 ```
 
+或使用 Makefile（推荐，包含版本信息注入）：
+
+```bash
+make build        # 编译当前平台，输出到 bin/
+make build-all    # 交叉编译所有平台并打包
+make test         # 运行测试
+make clean        # 清理构建产物
+make help         # 查看所有可用命令
+```
+
+支持的交叉编译平台：`windows/linux/darwin` × `amd64/arm64`。
+
 将 `jgo` 放入 `PATH` 即可使用。
 
 ## 快速开始
