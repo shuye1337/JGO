@@ -11,6 +11,7 @@ jgo
 
 # Output
 *.out
+bin/
 
 # Go workspace
 go.work
