@@ -3,10 +3,14 @@
 ## 1. 编译安装
 
 ```bash
-go build -o jgo .
+make build        # 编译当前平台，输出到 bin/
+make build-all    # 交叉编译所有平台并打包
+make test         # 运行测试
+make clean        # 清理构建产物
+make help         # 查看所有可用命令
 ```
 
-将生成的 `jgo`（或 `jgo.exe`）放入系统 `PATH` 中。
+将生成压缩包解压为 `jgo`（或 `jgo.exe`）放入系统 `PATH` 中。
 
 ## 2. 设置 JDK 安装目录
 
