@@ -7,6 +7,7 @@ Java 版本管理器 — 管理多个 JDK 安装的命令行工具。
 - 提供多平台支持和原生性能
 - 支持从四个源下载 JDK：Dragonwell、Corretto、Zulu、Temurin
 - 从本地 `.zip` / `.tar.gz` 归档添加 JDK
+- 支持托管已经存在于磁盘上的 JDK 目录
 - 切换 `JAVA_HOME` 和 `PATH` 环境变量
 - 镜像插件系统（支持清华 TUNA 等镜像加速下载）
 - 统一管理 Gradle / Maven 的代理和路径配置
@@ -53,7 +54,7 @@ jgo list                    # 查看已安装的 JDK
 | `jgo list` | 列出已安装的 JDK |
 | `jgo list available` | 列出所有可下载的 JDK |
 | `jgo install [version]` | 下载并安装 JDK |
-| `jgo add <path>` | 从本地归档添加 JDK |
+| `jgo add <path>` | 从本地归档或已有 JDK 目录添加 JDK |
 | `jgo use [name]` | 切换当前使用的 JDK |
 | `jgo remove [name]` | 从托管 JDKs 中移除（可选是否删除文件夹） |
 | `jgo root [path]` | 查看/设置 JDK 安装根目录 |

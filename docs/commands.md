@@ -70,18 +70,23 @@ jgo install 21 --proxy http://...  # 使用临时代理
 
 ## jgo add
 
-从本地归档文件添加 JDK。
+从本地归档文件添加 JDK，或托管一个已存在的 JDK 目录。
 
 ```bash
 jgo add ./openjdk-21.zip
 jgo add /path/to/jdk.tar.gz
+jgo add /opt/jdk-21          # 托管已有 JDK 目录
 ```
 
-要求：
+jgo 会根据传入的路径类型自动选择模式：
 
-- 文件必须是 `.zip` 或 `.tar.gz` 格式
-- 归档内必须包含有效的 JDK（含 `bin/java` 和 `bin/javac`）
-- 系统会提示输入自定义名称
+- **文件且为压缩包** (`.zip` / `.tar.gz` / `.tgz`)：解压并安装到 jgo 的根目录下。
+  归档内必须包含有效的 JDK（含 `bin/java` 和 `bin/javac`）。
+- **目录且包含有效的 JDK** (含 `bin/java` 和 `bin/javac`)：直接将该目录注册为
+  jgo 托管的 JDK，不会复制或移动文件。`jgo remove` 时只会移除注册记录，
+  不会删除原始目录。
+
+两种模式都会提示输入自定义名称。
 
 ---
 
@@ -110,7 +115,9 @@ jgo remove                # 交互式选择
 
 1. 显示待移除 JDK 的名称、版本、来源和路径（如果是当前激活的 JDK 会予以警告）
 2. 确认是否从托管列表中移除该 JDK
-3. 询问是否同时删除磁盘上的 JDK 文件夹（此操作不可逆）
+3. 如果 JDK 来源不是 `external`，询问是否同时删除磁盘上的 JDK 文件夹（此操作不可逆）。
+   `external` 来源（通过 `jgo add <目录>` 托管的已有 JDK）的原始目录不会被删除，
+   只移除 jgo 中的注册记录
 4. 执行移除，自动清理 `current` 标记（如果被移除的是当前使用的 JDK）
 
 每次确认都需要输入 `y`，输入 `n` 可取消操作。

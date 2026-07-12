@@ -59,7 +59,9 @@ var removeCmd = &cobra.Command{
 		}
 
 		deleteDir := false
-		if _, err := os.Stat(jdkInfo.Path); err == nil {
+		if jdkInfo.Source == "external" {
+			fmt.Fprintf(os.Stderr, "JDK is managed in place at %s; only the jgo registry entry will be removed.\n", jdkInfo.Path)
+		} else if _, err := os.Stat(jdkInfo.Path); err == nil {
 			deleteDir, err = promptYesNo(fmt.Sprintf("Also delete the JDK folder at %s? This is IRREVERSIBLE. (y/n): ", jdkInfo.Path))
 			if err != nil {
 				return err

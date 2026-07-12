@@ -177,6 +177,54 @@ func (m *Manager) AddLocal(ctx context.Context, archivePath, name string) error 
 	return nil
 }
 
+func (m *Manager) AddExisting(ctx context.Context, jdkDir, name string) error {
+	absPath, err := filepath.Abs(jdkDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve path: %w", err)
+	}
+
+	info, err := os.Stat(absPath)
+	if err != nil {
+		return fmt.Errorf("path not found: %w", err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("path is not a directory: %s", absPath)
+	}
+
+	if err := archive.ValidateJDK(absPath); err != nil {
+		return fmt.Errorf("not a valid JDK: %w", err)
+	}
+
+	if _, exists := m.Config.JDKs[name]; exists {
+		return fmt.Errorf("JDK '%s' already exists", name)
+	}
+
+	version, major := detectVersion(absPath)
+
+	m.Config.JDKs[name] = config.JDKInfo{
+		Name:    name,
+		Version: version,
+		Major:   major,
+		Source:  "external",
+		Path:    absPath,
+	}
+
+	if err := m.Config.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "Added: %s (%s) -> %s\n", name, version, absPath)
+	return nil
+}
+
+func IsExistingJDKDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil || !info.IsDir() {
+		return false
+	}
+	return archive.ValidateJDK(path) == nil
+}
+
 func (m *Manager) Use(name string) error {
 	jdk, exists := m.Config.JDKs[name]
 	if !exists {
