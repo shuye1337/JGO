@@ -4,7 +4,8 @@ Java 版本管理器 — 管理多个 JDK 安装的命令行工具。
 
 ## 特性
 
-- 从四个上游源下载 JDK：Alibaba Dragonwell、Amazon Corretto、Azul Zulu、Eclipse Temurin
+- 提供多平台支持和原生性能
+- 支持从四个源下载 JDK：Dragonwell、Corretto、Zulu、Temurin
 - 从本地 `.zip` / `.tar.gz` 归档添加 JDK
 - 切换 `JAVA_HOME` 和 `PATH` 环境变量
 - 镜像插件系统（支持清华 TUNA 等镜像加速下载）
@@ -13,7 +14,12 @@ Java 版本管理器 — 管理多个 JDK 安装的命令行工具。
 
 ## 安装
 
-从源码编译：
+#### 下载预编译文件
+1. 访问 [Github Releases 页](https://github.com/shuye1337/JGO/releases/latest) 下载你所用的平台的压缩包
+2. 将压缩包解压
+3. 将 `jgo`或`jgo.exe` 放入 `PATH` 即可使用。
+
+#### 从源码编译
 
 ```bash
 go build -o jgo .
@@ -31,14 +37,12 @@ make help         # 查看所有可用命令
 
 支持的交叉编译平台：`windows/linux/darwin` × `amd64/arm64`。
 
-将 `jgo` 放入 `PATH` 即可使用。
-
-## 快速开始
+## 使用示例
 
 ```bash
 jgo root                    # 查看 JDK 安装根目录（默认 ~/.jgo/jdks）
-jgo install 21              # 下载并安装 JDK 21
-jgo use Temurin-21          # 切换到 JDK 21
+jgo install 25              # 下载并安装 JDK 25
+jgo use Temurin-25          # 切换到 JDK 25
 jgo list                    # 查看已安装的 JDK
 ```
 
