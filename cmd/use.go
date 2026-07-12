@@ -25,9 +25,8 @@ var useCmd = &cobra.Command{
 		}
 		mgr := jdk.NewManager(cfg)
 
-		installed := mgr.ListInstalled()
-
 		if len(args) == 0 {
+			installed := mgr.ListInstalled()
 			name, err := selectInstalledJDK("Select JDK to use: ", installed, cfg.Current)
 			if err != nil {
 				return err

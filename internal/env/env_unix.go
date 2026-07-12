@@ -125,18 +125,12 @@ func removeFromPathOS(pathEntry string) error {
 }
 
 func setEnvVarsOS(jdkHome string) error {
-	oldJavaHome := os.Getenv("JAVA_HOME")
-
 	if err := setEnvVarOS("JAVA_HOME", jdkHome); err != nil {
 		return err
 	}
 	binPath := "$JAVA_HOME/bin"
 	if err := addToPathOS(binPath); err != nil {
 		return err
-	}
-
-	if oldJavaHome != "" && oldJavaHome != jdkHome {
-		_ = removeFromPathOS(binPath)
 	}
 
 	home, _ := os.UserHomeDir()

@@ -67,6 +67,35 @@ func removeEnvVarOS(name string) error {
 	return nil
 }
 
+// readPathRaw reads the raw (unexpanded) Path value and its type from the registry.
+// GetStringValue would expand %VAR% references in REG_EXPAND_SZ values, losing the
+// original literal form. GetValue returns raw UTF-16LE bytes which we decode ourselves.
+func readPathRaw(k registry.Key) (string, uint32, error) {
+	n, valtype, err := k.GetValue("Path", nil)
+	if err != nil {
+		if err == registry.ErrNotExist {
+			return "", registry.NONE, nil
+		}
+		return "", 0, err
+	}
+	if n == 0 {
+		return "", valtype, nil
+	}
+	buf := make([]byte, n)
+	if _, _, err = k.GetValue("Path", buf); err != nil {
+		return "", 0, err
+	}
+	u16 := make([]uint16, 0, len(buf)/2)
+	for i := 0; i+1 < len(buf); i += 2 {
+		c := uint16(buf[i]) | uint16(buf[i+1])<<8
+		if c == 0 {
+			break
+		}
+		u16 = append(u16, c)
+	}
+	return syscall.UTF16ToString(u16), valtype, nil
+}
+
 func addToPathOS(pathEntry string) error {
 	k, err := registry.OpenKey(registry.CURRENT_USER, envRegPath, registry.SET_VALUE|registry.QUERY_VALUE)
 	if err != nil {
@@ -74,8 +103,8 @@ func addToPathOS(pathEntry string) error {
 	}
 	defer k.Close()
 
-	current, _, err := k.GetStringValue("Path")
-	if err != nil && err != registry.ErrNotExist {
+	current, _, err := readPathRaw(k)
+	if err != nil {
 		return fmt.Errorf("failed to read Path: %w", err)
 	}
 
@@ -93,7 +122,7 @@ func addToPathOS(pathEntry string) error {
 		newPath = current + ";" + pathEntry
 	}
 
-	if err := k.SetStringValue("Path", newPath); err != nil {
+	if err := k.SetExpandStringValue("Path", newPath); err != nil {
 		return fmt.Errorf("failed to set Path: %w", err)
 	}
 	broadcastSettingChange()
@@ -107,7 +136,7 @@ func removeFromPathOS(pathEntry string) error {
 	}
 	defer k.Close()
 
-	current, _, err := k.GetStringValue("Path")
+	current, _, err := readPathRaw(k)
 	if err != nil {
 		if err == registry.ErrNotExist {
 			return nil
@@ -124,7 +153,7 @@ func removeFromPathOS(pathEntry string) error {
 	}
 	newPath := strings.Join(kept, ";")
 
-	if err := k.SetStringValue("Path", newPath); err != nil {
+	if err := k.SetExpandStringValue("Path", newPath); err != nil {
 		return fmt.Errorf("failed to set Path: %w", err)
 	}
 	broadcastSettingChange()
@@ -132,18 +161,12 @@ func removeFromPathOS(pathEntry string) error {
 }
 
 func setEnvVarsOS(jdkHome string) error {
-	oldJavaHome := os.Getenv("JAVA_HOME")
-
 	if err := setEnvVarOS("JAVA_HOME", jdkHome); err != nil {
 		return err
 	}
 	binPath := "%JAVA_HOME%\\bin"
 	if err := addToPathOS(binPath); err != nil {
 		return err
-	}
-
-	if oldJavaHome != "" && !strings.EqualFold(oldJavaHome, jdkHome) {
-		_ = removeFromPathOS(binPath)
 	}
 	return nil
 }

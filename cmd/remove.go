@@ -25,10 +25,9 @@ var removeCmd = &cobra.Command{
 		}
 		mgr := jdk.NewManager(cfg)
 
-		installed := mgr.ListInstalled()
-
 		name := ""
 		if len(args) == 0 {
+			installed := mgr.ListInstalled()
 			n, err := selectInstalledJDK("Select JDK to remove: ", installed, cfg.Current)
 			if err != nil {
 				return err
