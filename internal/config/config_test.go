@@ -38,7 +38,7 @@ func TestConfigMirrorsField(t *testing.T) {
 
 func TestDefaultMirrorsEmpty(t *testing.T) {
 	c := Default()
-	if c.Mirrors != nil && len(c.Mirrors) > 0 {
+	if len(c.Mirrors) > 0 {
 		t.Fatalf("expected empty Mirrors in default, got %v", c.Mirrors)
 	}
 }
