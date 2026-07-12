@@ -48,6 +48,8 @@ var removeCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "This is currently the active JDK.")
 		}
 
+		name = jdkInfo.Name
+
 		fmt.Fprintln(os.Stderr)
 		confirm, err := promptYesNo(fmt.Sprintf("Remove '%s' from managed JDKs? (y/n): ", name))
 		if err != nil {

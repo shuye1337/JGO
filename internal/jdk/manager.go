@@ -225,11 +225,25 @@ func IsExistingJDKDir(path string) bool {
 	return archive.ValidateJDK(path) == nil
 }
 
+func (m *Manager) findJDK(name string) (config.JDKInfo, string, bool) {
+	if jdk, exists := m.Config.JDKs[name]; exists {
+		return jdk, name, true
+	}
+	lower := strings.ToLower(name)
+	for key, info := range m.Config.JDKs {
+		if strings.ToLower(key) == lower {
+			return info, key, true
+		}
+	}
+	return config.JDKInfo{}, "", false
+}
+
 func (m *Manager) Use(name string) error {
-	jdk, exists := m.Config.JDKs[name]
-	if !exists {
+	jdk, key, ok := m.findJDK(name)
+	if !ok {
 		return fmt.Errorf("JDK '%s' not found", name)
 	}
+	name = key
 
 	if err := env.SetEnvVars(jdk.Path); err != nil {
 		return fmt.Errorf("failed to set environment variables: %w", err)
@@ -246,11 +260,11 @@ func (m *Manager) Use(name string) error {
 }
 
 func (m *Manager) FindByName(name string) (*config.JDKInfo, error) {
-	jdk, exists := m.Config.JDKs[name]
-	if !exists {
-		return nil, fmt.Errorf("JDK '%s' not found", name)
+	if _, key, ok := m.findJDK(name); ok {
+		j := m.Config.JDKs[key]
+		return &j, nil
 	}
-	return &jdk, nil
+	return nil, fmt.Errorf("JDK '%s' not found", name)
 }
 
 func (m *Manager) FindByVersion(version string) []config.JDKInfo {
@@ -267,10 +281,11 @@ func (m *Manager) FindByVersion(version string) []config.JDKInfo {
 }
 
 func (m *Manager) Remove(name string, deleteDir bool) error {
-	jdk, exists := m.Config.JDKs[name]
-	if !exists {
+	jdk, key, ok := m.findJDK(name)
+	if !ok {
 		return fmt.Errorf("JDK '%s' not found", name)
 	}
+	name = key
 
 	if deleteDir {
 		if err := os.RemoveAll(jdk.Path); err != nil {
