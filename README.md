@@ -51,6 +51,7 @@ jgo list                    # 查看已安装的 JDK
 | `jgo install [version]` | 下载并安装 JDK |
 | `jgo add <path>` | 从本地归档添加 JDK |
 | `jgo use [name]` | 切换当前使用的 JDK |
+| `jgo remove [name]` | 从托管 JDKs 中移除（可选是否删除文件夹） |
 | `jgo root [path]` | 查看/设置 JDK 安装根目录 |
 | `jgo proxy [url]` | 查看/设置/移除下载代理 |
 | `jgo mirror [source] [mirror-id]` | 查看/设置/移除镜像源 |

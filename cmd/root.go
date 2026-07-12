@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+	rootCmd.SilenceErrors = true
 }
 
 func Execute() error {

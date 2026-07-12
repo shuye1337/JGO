@@ -26,24 +26,13 @@ var useCmd = &cobra.Command{
 		mgr := jdk.NewManager(cfg)
 
 		installed := mgr.ListInstalled()
-		if len(installed) == 0 {
-			return fmt.Errorf("no JDKs installed. Use 'jgo install [version]' or 'jgo add <path>' first")
-		}
 
 		if len(args) == 0 {
-			var options []string
-			for _, j := range installed {
-				marker := "  "
-				if j.Name == cfg.Current {
-					marker = "* "
-				}
-				options = append(options, fmt.Sprintf("%s%s (%s, %s)", marker, j.Name, j.Version, j.Source))
-			}
-			idx, err := selectFromMenu("Select JDK to use: ", options)
+			name, err := selectInstalledJDK("Select JDK to use: ", installed, cfg.Current)
 			if err != nil {
 				return err
 			}
-			return mgr.Use(installed[idx].Name)
+			return mgr.Use(name)
 		}
 
 		arg := args[0]

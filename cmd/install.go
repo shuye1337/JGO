@@ -93,14 +93,14 @@ var installCmd = &cobra.Command{
 
 		name := fmt.Sprintf("%s-%d", selected.Source, selected.Major)
 		if _, exists := cfg.JDKs[name]; exists {
-			overwrite, err := promptString(fmt.Sprintf("JDK '%s' already exists. Overwrite? (y/n): ", name))
+			overwrite, err := promptYesNo(fmt.Sprintf("JDK '%s' already exists. Overwrite? (y/n): ", name))
 			if err != nil {
 				return err
 			}
-			if !strings.EqualFold(overwrite, "y") {
+			if !overwrite {
 				return fmt.Errorf("installation cancelled")
 			}
-			if err := mgr.Remove(name); err != nil {
+			if err := mgr.Remove(name, true); err != nil {
 				return err
 			}
 		}

@@ -218,14 +218,16 @@ func (m *Manager) FindByVersion(version string) []config.JDKInfo {
 	return result
 }
 
-func (m *Manager) Remove(name string) error {
+func (m *Manager) Remove(name string, deleteDir bool) error {
 	jdk, exists := m.Config.JDKs[name]
 	if !exists {
 		return fmt.Errorf("JDK '%s' not found", name)
 	}
 
-	if err := os.RemoveAll(jdk.Path); err != nil {
-		return fmt.Errorf("failed to remove JDK directory: %w", err)
+	if deleteDir {
+		if err := os.RemoveAll(jdk.Path); err != nil {
+			return fmt.Errorf("failed to remove JDK directory: %w", err)
+		}
 	}
 
 	delete(m.Config.JDKs, name)
@@ -237,7 +239,11 @@ func (m *Manager) Remove(name string) error {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "Removed: %s\n", name)
+	if deleteDir {
+		fmt.Fprintf(os.Stderr, "Removed: %s (deleted %s)\n", name, jdk.Path)
+	} else {
+		fmt.Fprintf(os.Stderr, "Removed: %s (files preserved)\n", name)
+	}
 	return nil
 }
 
